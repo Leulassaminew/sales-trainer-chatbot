@@ -13,9 +13,9 @@ import random
 torch.set_grad_enabled(False)
 torch.cuda._lazy_init()
 
-a = ["Chaddie","Perelli","cperelli0@accuweather.com","Male","Di Pisa","Dakota Club","Portugal"]
+a = ["Chaddie","Perelli","cperelli0@accuweather.com","Male","Seatle","Dakota Club","USA"]
 b=["Anabal","MacCahey","amaccahey@opera.com","Female","Berlin","Ranger","Germany"]
-c=["Kynthia","Vain","Kvain2@imgur.com","Female","Zagora","Legend","Russia"]
+c=["Kynthia","Vain","Kvain2@imgur.com","Female","London","Legend","England"]
 personas=[a,b,c]
 personality = random.choice(personas)
 
