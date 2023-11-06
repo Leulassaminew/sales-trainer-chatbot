@@ -138,16 +138,17 @@ max_response_tokens = 256
 extra_prune = 256
 
 print(past, end = "")
-ids = tokenizer.encode(past)
-generator.gen_begin(ids)
+
 
 next_userprompt = username + ": "
 
 first_round = True
-label = [0,0,0,0,0,0,0,0]
+label = []
 score = 0
-while True:
-
+count=0
+while count<7:
+    ids = tokenizer.encode(past)
+    generator.gen_begin(ids)
     res_line = bot_name + ":"
     res_tokens = tokenizer.encode(res_line)
     num_res_tokens = res_tokens.shape[-1]  # Decode from here
@@ -159,7 +160,7 @@ while True:
         # Read and format input
 
         in_line = input(next_userprompt)
-        input1=in_line1
+        input1=in_line.strip()
         in_line = username + ": " + in_line.strip() + "\n"
 
         next_userprompt = username + ": "
@@ -241,23 +242,20 @@ while True:
             break
 
     generator.end_beam_search()
-    prompt1 = f"""Below is an instruction that describes a task. Write a response that appropriately completes the request.
-### Instruction:
-"Categorize the input text based on the sales technique used in it from one of these categories only and offer no explanation:\n\nBUILDING RAPPORT\nNEEDS ASSESMENT\nCREATING URGENCY\nSOCIAL PROOF\nOVERCOMING OBJECTION\nCROSS SELLING OR UPSELLING\nVALUE BASED SELLING\nNONE\n\n"
-
-### Input:
-{input1}
-
-### Response:"""
+    past += res_line
+    first_round = False
+    prompt1 = f"Below is an instruction that describes a task, Write a response that appropriately completes the request.\n\n### Instruction:\n Categorize the input text based on the sales technique used in it from one of these categories only and offer no explanation:\n\nBUILDING RAPPORT\nNEEDS ASSESMENT\nCREATING URGENCY\nSOCIAL PROOF\nOVERCOMING OBJECTION\nCROSS SELLING OR UPSELLING\nVALUE BASED SELLING\nNONE.\n\n### Input:\n{input1}\n\n### Response:\n"
     generator.lora=lora
     torch.manual_seed(1337)
-    output = generator.generate_simple(prompt1, max_new_tokens = 200)
+    output = generator.generate_simple(prompt1.format(input1=input1), max_new_tokens = 200)
+    print(output)
     if label[output]==0:
       score+=10
-      label[output]=1
+      label.append(output.strip())
     else:
       score+=1
     generator.lora=None
+    count+=1
+print(score)
 
-    past += res_line
-    first_round = False
+
