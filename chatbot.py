@@ -249,9 +249,9 @@ while count<7:
     torch.manual_seed(1337)
     output = generator.generate_simple(prompt1.format(input1=input1), max_new_tokens = 200)
     print(output)
-    if label[output]==0:
+    if output.split("Response:")[1].strip() not in label:
       score+=10
-      label.append(output.strip())
+      label.append(output.split("Response:")[1].strip())
     else:
       score+=1
     generator.lora=None
