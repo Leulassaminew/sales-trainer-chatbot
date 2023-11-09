@@ -144,7 +144,7 @@ def chat(input):
         else:
             score+=1
   generator.lora=None
-  if score>20:
+  if score>30:
         past+= "###"+ bot_name + " has changed his mind and have now decided to buy the proposed insurance"
   return c
 def respond(message, chat_history):
