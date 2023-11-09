@@ -26,7 +26,7 @@ personas=[a,b,c]
 personality = random.choice(personas)
 
 model_directory = "TheBloke_Llama-2-13B-chat-GPTQ"
-
+lora_directory = "lora"
 tokenizer_path = os.path.join(model_directory, "tokenizer.model")
 model_config_path = os.path.join(model_directory, "config.json")
 st_pattern = os.path.join(model_directory, "*.safetensors")
@@ -40,6 +40,9 @@ print(f"Model loaded: {model_path}")
 
 tokenizer = ExLlamaTokenizer(tokenizer_path)            # create tokenizer from tokenizer model file
 cache = ExLlamaCache(model)                             # create cache for inference
+lora_adapter = os.path.join(model_directory, "adapter_config.json")
+lora_config = os.path.join(model_directory, "adapter_model.bin")
+lora = ExLlamaLora(model, lora_config, lora_adapter)
 generator = ExLlamaGenerator(model, tokenizer, cache)   # create generator
 generator.settings = ExLlamaGenerator.Settings()
 generator.settings.temperature = 0.5
@@ -73,8 +76,11 @@ with open("prompt1.txt", "r") as f:
 min_response_tokens = 4
 max_response_tokens = 256
 extra_prune = 256
+label = []
+score = 0
 def chat(input):
   global past
+  
   ids = tokenizer.encode(past)
   generator.gen_begin(ids)
   res_line = bot_name + ":"
@@ -122,6 +128,22 @@ def chat(input):
 
   generator.end_beam_search()
   past += res_line
+  prompt11 = f"Below is an instruction that describes a task, Write a response that appropriately completes the request.\n\n### Instruction:\n Categorize the input text based on the sales technique used in it from one of these categories only and offer no explanation:\n\nBUILDING RAPPORT\nNEEDS ASSESMENT\nCREATING URGENCY\nSOCIAL PROOF\nOVERCOMING OBJECTION\nCROSS SELLING OR UPSELLING\nVALUE BASED SELLING\nNONE.\n\n### Input:\n{input1}\n\n### Response:\n"
+  generator.lora=lora
+  torch.manual_seed(1337)
+  output = generator.generate_simple(prompt11.format(input1=input), max_new_tokens = 200)
+  #print(output)
+  if output.split("Response:")[1].strip()=="NONE":
+        score-=1
+  else:
+        if output.split("Response:")[1].strip() not in label:
+            score+=10
+            label.append(output.split("Response:")[1].strip())
+        else:
+            score+=1
+  generator.lora=None
+  if score>20:
+        past+= "###"+ bot_name + " has changed his mind and have now decided to buy the proposed insurance"
   return c
 def respond(message, chat_history):
         bot_message = chat(message)
