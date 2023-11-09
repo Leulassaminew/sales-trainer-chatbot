@@ -1,5 +1,6 @@
 from model import ExLlama, ExLlamaCache, ExLlamaConfig
 from tokenizer import ExLlamaTokenizer
+from lora import ExLlamaLora
 from generator import ExLlamaGenerator
 import os, glob
 import model_init
@@ -40,8 +41,8 @@ print(f"Model loaded: {model_path}")
 
 tokenizer = ExLlamaTokenizer(tokenizer_path)            # create tokenizer from tokenizer model file
 cache = ExLlamaCache(model)                             # create cache for inference
-lora_adapter = os.path.join(model_directory, "adapter_config.json")
-lora_config = os.path.join(model_directory, "adapter_model.bin")
+lora_config = os.path.join(lora_directory, "adapter_config.json")
+lora_adapter = os.path.join(lora_directory, "adapter_model.bin")
 lora = ExLlamaLora(model, lora_config, lora_adapter)
 generator = ExLlamaGenerator(model, tokenizer, cache)   # create generator
 generator.settings = ExLlamaGenerator.Settings()
@@ -80,7 +81,8 @@ label = []
 score = 0
 def chat(input):
   global past
-  
+  global score
+  global label
   ids = tokenizer.encode(past)
   generator.gen_begin(ids)
   res_line = bot_name + ":"
