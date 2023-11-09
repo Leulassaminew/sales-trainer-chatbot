@@ -26,7 +26,7 @@ c=["Kynthia","Vain","Kvain2@imgur.com","Female","Zagora","Legend","Russia"]
 personas=[a,b,c]
 personality = random.choice(personas)
 
-model_directory = "TheBloke_Llama-2-13B-chat-GPTQ"
+model_directory = "models/TheBloke_Llama-2-13B-chat-GPTQ_gptq-4bit-128g-actorder_True"
 lora_directory = "lora"
 tokenizer_path = os.path.join(model_directory, "tokenizer.model")
 model_config_path = os.path.join(model_directory, "config.json")
